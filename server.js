@@ -9,6 +9,7 @@ const mongoose = require('mongoose');
 const PORT = process.env.PORT;
 const server = express();
 server.use(cors());
+server.use(express.json());
 mongoose.connect('mongodb://localhost:27017/Books', { useNewUrlParser: true, useUnifiedTopology: true });
 
 
@@ -45,16 +46,20 @@ function bookCollection() {
 bookCollection(); 
 
 server.get('/test', testHandler);
-server.get('/books',bookHandler)
+server.get('/books',bookHandler);
+server.post('/books1',Addnewbook);
+server.delete('/deleteBook/:booKid',deleteBook);
+// deleteBook/${booKid}
+
 //localhost:/books?bookName=bookName
 function bookHandler(req,res){
     let bookName1=req.query.bookName;
 
-console.log('hi');
+console.log(bookName1);
     booKModel.find({email:bookName1},function(err,nameData){
 
         if(err) {
-            console.log('error in getting the data')
+            console.log(err)
         } else{
 
             res.send(nameData)
@@ -62,6 +67,58 @@ console.log('hi');
         
     })
 
+}
+
+async function Addnewbook(req,res){
+    console.log('hi');
+    let { title, description, email } = req.body;
+    console.log(req.body);
+
+    await booKModel.create({title,description,email});
+
+    booKModel.find({email:email},function(err,updatedData){
+        if(err){
+            console.log('error in getting the data');
+        }else {
+            console.log(updatedData);
+            res.send(updatedData)
+        }
+    }
+    )
+
+}
+
+async function deleteBook(req,res){
+console.log('hi');
+    
+    let bookDataID = req.params.booKid;
+    let email= req.query.email;
+
+    console.log(email);
+    
+    console.log(bookDataID);
+    booKModel.remove({_id:bookDataID},(error,bookdata)=>{
+   
+   if(error){
+    console.log('error in deleteing the data')
+
+   }
+   
+        else{
+    booKModel.find({email},function(err,upDateddata){
+    if(err){
+        console.log('error in getting the data')
+
+    }else{
+        console.log(upDateddata);
+        res.send(upDateddata);
+    }
+
+
+    })
+
+   }
+})
 }
 
 function testHandler(req, res) {
