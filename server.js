@@ -10,7 +10,9 @@ const PORT = process.env.PORT;
 const server = express();
 server.use(cors());
 server.use(express.json());
-mongoose.connect('mongodb://localhost:27017/Books', { useNewUrlParser: true, useUnifiedTopology: true });
+
+//mongodb://Mohammed:<password>@mohammeddb-shard-00-00.ymth7.mongodb.net:27017,mohammeddb-shard-00-01.ymth7.mongodb.net:27017,mohammeddb-shard-00-02.ymth7.mongodb.net:27017/myFirstDatabase?ssl=true&replicaSet=atlas-xjza85-shard-0&authSource=admin&retryWrites=true&w=majority
+mongoose.connect(`${process.env.ATLASDB_URL}`, { useNewUrlParser: true, useUnifiedTopology: true });
 
 
 const Book = new mongoose.Schema({
