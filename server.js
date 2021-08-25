@@ -10,7 +10,9 @@ const PORT = process.env.PORT;
 const server = express();
 server.use(cors());
 server.use(express.json());
-mongoose.connect('mongodb://localhost:27017/Books', { useNewUrlParser: true, useUnifiedTopology: true });
+
+//mongodb://Mohammed:<password>@mohammeddb-shard-00-00.ymth7.mongodb.net:27017,mohammeddb-shard-00-01.ymth7.mongodb.net:27017,mohammeddb-shard-00-02.ymth7.mongodb.net:27017/myFirstDatabase?ssl=true&replicaSet=atlas-xjza85-shard-0&authSource=admin&retryWrites=true&w=majority
+mongoose.connect(`${process.env.ATLASDB_URL}`, { useNewUrlParser: true, useUnifiedTopology: true });
 
 
 const Book = new mongoose.Schema({
@@ -49,6 +51,8 @@ server.get('/test', testHandler);
 server.get('/books',bookHandler);
 server.post('/books1',Addnewbook);
 server.delete('/deleteBook/:booKid',deleteBook);
+server.put('/updateBook/:bookId',UpdateHandler);
+
 // deleteBook/${booKid}
 
 //localhost:/books?bookName=bookName
@@ -120,6 +124,41 @@ console.log('hi');
    }
 })
 }
+
+async function UpdateHandler(req,res){
+    let {email,title,description,id}=req.body;
+    let objID = req.params.bookId;
+    // console.log(req.body);
+    booKModel.findOne({_id:objID},(error,bookData)=>{
+
+        bookData.title=title;
+        bookData.description=description;
+        bookData.save()
+        .then(()=>{
+          booKModel.find({email:email},function(err,updatedData){
+            if(err){
+                console.log('error in getting the data');
+            }else{
+            console.log(updatedData);
+            res.send(updatedData);
+            }
+
+          })
+
+
+
+        }).catch(error=>{
+            console.log('error in saving ')
+        })
+
+
+
+
+    })
+
+
+}
+
 
 function testHandler(req, res) {
     res.send('all good')
