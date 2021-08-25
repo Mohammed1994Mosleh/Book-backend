@@ -49,6 +49,8 @@ server.get('/test', testHandler);
 server.get('/books',bookHandler);
 server.post('/books1',Addnewbook);
 server.delete('/deleteBook/:booKid',deleteBook);
+server.put('/updateBook/:bookId',UpdateHandler);
+
 // deleteBook/${booKid}
 
 //localhost:/books?bookName=bookName
@@ -120,6 +122,41 @@ console.log('hi');
    }
 })
 }
+
+async function UpdateHandler(req,res){
+    let {email,title,description,id}=req.body;
+    let objID = req.params.bookId;
+    // console.log(req.body);
+    booKModel.findOne({_id:objID},(error,bookData)=>{
+
+        bookData.title=title;
+        bookData.description=description;
+        bookData.save()
+        .then(()=>{
+          booKModel.find({email:email},function(err,updatedData){
+            if(err){
+                console.log('error in getting the data');
+            }else{
+            console.log(updatedData);
+            res.send(updatedData);
+            }
+
+          })
+
+
+
+        }).catch(error=>{
+            console.log('error in saving ')
+        })
+
+
+
+
+    })
+
+
+}
+
 
 function testHandler(req, res) {
     res.send('all good')
